@@ -37,6 +37,8 @@ USER 1000
 
 FROM base AS prod
 
+ENV PATH="/bot/.venv/bin:${PATH}"
+
 USER 1000
 
 WORKDIR /bot
