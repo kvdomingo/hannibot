@@ -1,18 +1,37 @@
+name: hannibot
+
+volumes:
+  db-data:
+  venv-data:
+
 services:
   bot:
     build: .
     image: ghcr.io/kvdomingo/hannibot
     restart: unless-stopped
-    init: true
-    env_file: .env
+    environment:
+      PYTHON_ENV: development
+      BOT_PREFIX: "%"
+      POSTGRESQL_USERNAME: postgres
+      POSTGRESQL_PASSWORD: postgres
+      POSTGRESQL_DATABASE: postgres
+      POSTGRESQL_HOST: db
+      POSTGRESQL_PORT: 5432
+      DISCORD_ADMIN_ID: ${DISCORD_ADMIN_ID}
+      DISCORD_TEST_GUILD_ID: ${DISCORD_TEST_GUILD_ID}
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+      REDDIT_CLIENT_ID: ${REDDIT_CLIENT_ID}
+      REDDIT_CLIENT_SECRET: ${REDDIT_CLIENT_SECRET}
     volumes:
       - .:/bot
       - venv-data:/bot/.venv
+    depends_on:
+      db:
+        condition: service_healthy
 
   docs:
-    image: oven/bun:1.1-alpine
+    image: oven/bun:1-alpine
     restart: unless-stopped
-    init: true
     environment:
       NODE_ENV: development
     working_dir: /app
@@ -20,35 +39,24 @@ services:
       - /bin/sh
       - -eu
       - -c
-      - "bun install && exec bun run dev"
+      - bun install && exec bun run dev
     volumes:
       - ./docs:/app
     ports:
       - 3000:3000
 
   db:
-    image: bitnami/postgresql:13.6.0-debian-10-r19
+    image: postgres:18
     restart: unless-stopped
-    env_file: .env
     environment:
-      ALLOW_EMPTY_PASSWORD: yes
+      POSTGRES_PASSWORD: postgres
     volumes:
-      - db-data:/bitnami/postgresql
+      - db-data:/var/lib/postgresql
     ports:
       - 5432:5432
-
-  pgadmin:
-    image: dpage/pgadmin4:8.12
-    env_file: .env
-    environment:
-      PGADMIN_LISTEN_ADDRESS: 0.0.0.0
-      PGADMIN_LISTEN_PORT: 5000
-    volumes:
-      - pgadmin-data:/pgadmin4
-    ports:
-      - 5000:5000
-
-volumes:
-  db-data:
-  venv-data:
-  pgadmin-data:
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      start_period: 10s
+      interval: 20s
+      timeout: 3s
+      retries: 3

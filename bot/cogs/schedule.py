@@ -14,6 +14,8 @@ from common.db import get_db_context
 from common.models import ScheduleSubscriber
 from common.schemas import (
     FormattedComeback,
+)
+from common.schemas import (
     ScheduleSubscriber as ScheduleSubscriberSchema,
 )
 from common.settings import settings
@@ -27,7 +29,7 @@ class Schedule(commands.Cog):
     async def on_ready(self):
         self.update_schedule.start()
 
-    def cog_unload(self):
+    async def cog_unload(self):
         self.update_schedule.cancel()
 
     @commands.group(hidden=True)
@@ -163,24 +165,23 @@ class Schedule(commands.Cog):
                 (
                     await db.execute(
                         text(
-                            """
+                            """--sql
                             SELECT
-                                TO_CHAR(DATE::DATE, 'Mon DD (Dy)') || CASE
-                                    WHEN DATE::DATE = NOW()::DATE THEN ' `<today>`'
+                                TO_CHAR(DATE::DATE, 'Mon DD (Dy)') 
+                                || CASE 
+                                    WHEN DATE::DATE = NOW()::DATE 
+                                    THEN ' `<today>`'
                                     ELSE ''
                                 END AS DATE,
                                 DATE::DATE = NOW()::DATE AS IS_TODAY,
                                 STRING_AGG(
                                     CONCAT_WS(
                                         ' ',
-                                        '[<t:' || EXTRACT(
-                                            EPOCH
-                                            FROM
-                                                DATE
-                                        ) || '\:t>]',
+                                        '[<t:' || EXTRACT(EPOCH FROM DATE) || ':t>]',
                                         '**' || ARTIST || '**',
                                         CASE
-                                            WHEN ALBUM_TYPE IS NOT NULL THEN INITCAP(ALBUM_TYPE)
+                                            WHEN ALBUM_TYPE IS NOT NULL 
+                                            THEN INITCAP(ALBUM_TYPE)
                                             ELSE CASE
                                                 WHEN RELEASE IS NOT NULL THEN CASE
                                                     WHEN RELEASE ILIKE '%japan%' THEN 'Japan'
@@ -197,7 +198,7 @@ class Schedule(commands.Cog):
                             WHERE DATE::DATE <= NOW() + INTERVAL '30' DAY
                             GROUP BY DATE::DATE
                             ORDER BY DATE::DATE
-                        """
+                            """
                         )
                     )
                 )

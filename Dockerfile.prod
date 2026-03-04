@@ -1,22 +1,52 @@
-FROM python:3.12-slim
+FROM python:3.12-slim AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV POETRY_VERSION=1.8.3
+
+FROM base AS build
+
+ENV PATH="/root/.local/bin:${PATH}"
+
+ARG UV_VERSION=0.10.8
+
+USER root
 
 WORKDIR /tmp
 
-COPY poetry.lock pyproject.toml ./
+SHELL [ "/bin/bash", "-euxo", "pipefail", "-c" ]
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    useradd --uid 1000 --user-group --create-home bot && \
+    mkdir -p /bot
+
+ADD https://astral.sh/uv/${UV_VERSION}/install.sh /tmp/install-uv.sh
+
+SHELL [ "/bin/sh", "-eu" ]
+RUN /tmp/install-uv.sh
+
+COPY pyproject.toml uv.lock LICENSE README.md ./
 
 SHELL [ "/bin/bash", "-euxo", "pipefail", "-c" ]
+RUN uv export --format requirements-txt --frozen --no-dev --output-file /tmp/requirements.txt && \
+    python -m venv /bot/.venv && \
+    /bot/.venv/bin/pip install -U pip && \
+    /bot/.venv/bin/pip install -r /tmp/requirements.txt
 
-RUN pip install --no-cache-dir "poetry==$POETRY_VERSION" && \
-    poetry export --without-hashes --without dev --format requirements.txt | pip install --no-cache-dir -r /dev/stdin
+USER 1000
+
+FROM base AS prod
+
+USER 1000
 
 WORKDIR /bot
 
-COPY . .
+COPY --from=build --chown=bot:bot /bot/.venv /bot/.venv
+COPY bot bot
+COPY common common
+COPY migrations migrations
+COPY pipeline pipeline
+COPY alembic.ini alembic.ini
+COPY docker-entrypoint.sh docker-entrypoint.sh
 
-ENTRYPOINT [ "python" ]
-CMD [ "-m", "bot" ]
+ENTRYPOINT [ "/bot/docker-entrypoint.sh" ]

@@ -1,3 +1,4 @@
+from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 from zoneinfo import ZoneInfo
@@ -28,7 +29,7 @@ class Settings(BaseSettings):
     DISCORD_MESSAGE_PURGE_LIMIT: int = 10
 
     POSTGRESQL_USERNAME: str
-    POSTGRESQL_PASSWORD: str | None = None
+    POSTGRESQL_PASSWORD: str
     POSTGRESQL_DATABASE: str
     POSTGRESQL_HOST: str
     POSTGRESQL_PORT: int = 5432
@@ -66,4 +67,9 @@ class Settings(BaseSettings):
         )
 
 
-settings = Settings()
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()  # ty:ignore[missing-argument]
+
+
+settings = get_settings()

@@ -2,7 +2,7 @@
 
 set -euxo pipefail
 
-poetry install --no-root --with dev
-poetry run alembic upgrade head
+uv sync --dev --all-groups
+uv run alembic upgrade head
 
-exec poetry run watchmedo auto-restart --directory ./bot/ --directory ./common/ --recursive -- python -- -m bot
+exec uv run watchmedo auto-restart --directory ./bot/ --directory ./common/ --recursive -- python -m bot
