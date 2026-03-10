@@ -108,6 +108,9 @@ postgresql:
       userPasswordKey: POSTGRESQL_PASSWORD
   volumePermissions:
     enabled: true
+    image:
+      repository: bitnamilegacy/os-shell
+      tag: 12-debian-12-r32
   primary:
     persistence:
       enabled: true
