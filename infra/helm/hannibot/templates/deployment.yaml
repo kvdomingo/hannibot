@@ -36,8 +36,8 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
         - name: '{{ .Chart.Name }}-init-wait-db'
-          image: '{{ .Values.postgresql.image.repository }}:{{ .Values.postgresql.image.tag }}'
-          imagePullPolicy: {{ .Values.postgresql.image.pullPolicy }}
+          image: postgres:18
+          imagePullPolicy: IfNotPresent
           command:
             - /bin/sh
             - -c
