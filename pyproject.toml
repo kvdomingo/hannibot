@@ -27,7 +27,7 @@ dependencies = [
     "pytz>=2024.2,<2025",
     "asyncpraw>=7.8.0,<8",
     "sqlalchemy>=2.0.36,<3",
-    "asyncpg>=0.30.0,<0.31",
+    "asyncpg>=0.31,<0.32",
     "python-ulid[pydantic]>=3.0.0,<4",
     "alembic>=1.13.3,<2",
 ]
