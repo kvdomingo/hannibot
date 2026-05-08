@@ -12,7 +12,7 @@
   "dependencies": {
     "@cloudinary/react": "^1.13.1",
     "@cloudinary/url-gen": "^1.21.0",
-    "@icons-pack/react-simple-icons": "^10.1.0",
+    "@icons-pack/react-simple-icons": "^13.0.0",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-navigation-menu": "^1.2.1",
     "@radix-ui/react-slot": "^1.1.0",
