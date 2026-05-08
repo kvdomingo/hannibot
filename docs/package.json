@@ -33,7 +33,7 @@
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.14",
     "clsx": "^2.1.1",
-    "globals": "^15.11.0",
+    "globals": "^17.0.0",
     "postcss": "^8.4.24",
     "tailwind-merge": "^2.5.4",
     "tailwindcss": "^3.3.2",
