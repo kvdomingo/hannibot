@@ -34,7 +34,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "ruff>=0.7.1,<0.8",
+    "ruff>=0.15.13,<0.16",
     "ipython>=9.13,<10",
     "ty>=0.0.20",
 ]
