@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "bunVersion": "1.4.x",
+  "regions": ["sin1"]
+}
